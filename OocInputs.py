@@ -4,7 +4,6 @@ import geopandas as gpd
 import pandas as pd 
 import xarray as xr
 from shapely.geometry import Point
-#import gsw
 
 
 class OocInputs:
@@ -71,56 +70,6 @@ class OocInputs:
 			#pass
 
 		return self
-
-		
-	def GetDensityFromWOA13(self,periods={'intense':1.5,'weak':4.5}):
-
-		self.density={}
-		
-		OPENDAPprefix='https://data.nodc.noaa.gov/thredds/dodsC/woa/WOA13/DATAv2/temperature/netcdf/decav/0.25/woa13_decav_'
-		
-		OPENDAPsufix='_04v2.nc'
-		
-		# gets files opendap access
-		FullURLtemp = lambda x:OPENDAPprefix+'t{:02d}'.format(x)+OPENDAPsufix 
-		
-		FullURLsal = lambda x:OPENDAPprefix+'s{:02d}'.format(x)+OPENDAPsufix 
-		
-		# gets files opendap access
-				
-		if self._gdf.depth.values[0]>1500:
-			print('WOA13 profile will generate with climatology data')
-			DataRange=list(range(13,17))
-		else:
-			print('WOA13 profile will generate with monthly data')
-			DataRange=list(range(1,13))
-		
-		# creates a dataset list
-		ListWOA13Data = list(map(FullURLtemp,DataRange))+list(map(FullURLsal,DataRange))
-		print(ListWOA13Data)
-		# Converts to dataset
-		ds = xr.open_mfdataset(ListWOA13Data,decode_times=False)
-		
-		# Gets closer point and converts to DataFrame and remove invalid data
-		df = ds[['s_an','t_an']].sel(lon=self.lon,lat=self.lat,method='nearest').to_dataframe().dropna()
-		
-		ds.close()
-	
-		# calculates pressure
-		df['pressure'] = gsw.p_from_z(df.index.get_level_values('depth'),ds['lat'].values)
-		# calculates absolut salinity
-		df['AbsSal']=gsw.deltaSA_from_SP(df['s_an'].values,df['pressure'],df['lon'].values,df['lat'].values)
-		# calculates density
-		df['density'] = gsw.rho_t_exact(df['AbsSal'].values,df['t_an'].values,df['pressure'].values)
-
-		# export denity profiles
-		for key,val in periods.iteritems():
-			# exports data
-			df.xs(val,level='time',axis=0,drop_level=False)['density'].to_csv('DensityProfiles_{}.csv'.format(key),sep=';')
-			
-			self.density[key]=df.xs(val,level='time',axis=0,drop_level=False)['density']
-	
-		return self
 	
 	def WriteIni(self,filename):
 	
@@ -175,26 +124,88 @@ class OocInputs:
 			
 			f.write('\nEND\n')
 	
-	def ProbGeneration(self,fname,step=1):
+	def ProbGeneration(self,fname,step=1,windows=False):
 		self = self.GetCurrent()
 		N=len(self.CurrProfile)
 		Nlayers=self.CurrLayers+1
 		Nlim=N-(self.nt)*Nlayers
 		i=0
 		k=0
-		f = open(fname+'_run.bat','w')
+		if windows:
+			ftype='bat'
+			oocfname='oc120299'
+			copycommand='copy'
+		else:
+			ftype='sh'
+			oocfname='wine oc120299.exe'
+			copycommand='cp'
+
+		f = open(fname+'_run.'+ftype,'w')
+
 		while i < Nlim:
 			self = self.GetCurrent()
 			self.CurrProfile=self.CurrProfile[i:(self.nt*Nlayers+i)]
 			self.WriteIni('{}_{:04d}.in'.format(fname,k))
 			
-			f.write('oc120299 {}_{:04d}.in {:04d}.out >> {:04d}.txt\n'.format(fname.split('/')[-1],k,k,k))
-			f.write('COPY DYNPLUME {}_{:04d}.DYN\n'.format(fname.split('/')[-1],k))
-			f.write('COPY PLANVW {}_{:04d}.PLN\n'.format(fname.split('/')[-1],k))
+			f.write('{} {}_{:04d}.in {:04d}.out >> {:04d}.txt\n'.format(oocfname,fname.split('/')[-1],k,k,k))
+			f.write(copycommand+' DYNPLUME {}_{:04d}.DYN\n'.format(fname.split('/')[-1],k))
+			f.write(copycommand+' PLANVW {}_{:04d}.PLN\n'.format(fname.split('/')[-1],k))
 			
 			k+=1
 			i+=Nlayers*step
 		f.close()
+
+
+
+def GetDensityFromWOA13(depth,lon,lat,self,periods={'intense':1.5,'weak':4.5}):
+
+		density={}
+		
+		OPENDAPprefix='https://data.nodc.noaa.gov/thredds/dodsC/woa/WOA13/DATAv2/temperature/netcdf/decav/0.25/woa13_decav_'
+		
+		OPENDAPsufix='_04v2.nc'
+		
+		# gets files opendap access
+		FullURLtemp = lambda x:OPENDAPprefix+'t{:02d}'.format(x)+OPENDAPsufix 
+		
+		FullURLsal = lambda x:OPENDAPprefix+'s{:02d}'.format(x)+OPENDAPsufix 
+		
+		# gets files opendap access
+				
+		if depth.values[0]>1500:
+			print('WOA13 profile will generate with climatology data')
+			DataRange=list(range(13,17))
+		else:
+			print('WOA13 profile will generate with monthly data')
+			DataRange=list(range(1,13))
+		
+		# creates a dataset list
+		ListWOA13Data = list(map(FullURLtemp,DataRange))+list(map(FullURLsal,DataRange))
+		print(ListWOA13Data)
+		# Converts to dataset
+		ds = xr.open_mfdataset(ListWOA13Data,decode_times=False)
+		
+		# Gets closer point and converts to DataFrame and remove invalid data
+		df = ds[['s_an','t_an']].sel(lon=lon,lat=lat,method='nearest').to_dataframe().dropna()
+		
+		ds.close()
+	
+		# calculates pressure
+		df['pressure'] = gsw.p_from_z(df.index.get_level_values('depth'),ds['lat'].values)
+		# calculates absolut salinity
+		df['AbsSal']=gsw.deltaSA_from_SP(df['s_an'].values,df['pressure'],df['lon'].values,df['lat'].values)
+		# calculates density
+		df['density'] = gsw.rho_t_exact(df['AbsSal'].values,df['t_an'].values,df['pressure'].values)
+
+		# export denity profiles
+		for key,val in periods.iteritems():
+			# exports data
+			df.xs(val,level='time',axis=0,drop_level=False)['density'].to_csv('DensityProfiles_{}.csv'.format(key),sep=';')
+			
+			density[key]=df.xs(val,level='time',axis=0,drop_level=False)['density']
+	
+		return density
+
 
 
 if __name__=='__main__':
