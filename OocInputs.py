@@ -127,9 +127,7 @@ class OocInputs:
 		return self
 
 	def ProbGeneration(self,fname,step=1,windows=False):
-<<<<<<< HEAD
-		
-=======
+
 		fname=fname.replace('\\','/')
 
 		if ('/' in fname):
@@ -141,7 +139,6 @@ class OocInputs:
 				except:
 					pass
 
->>>>>>> b24b745cfe86cf91b0330f88e7e14400a4c8d752
 		self = self.GetCurrent()
 		N=len(self.CurrProfile)
 		Nlayers=self.CurrLayers+1
@@ -268,7 +265,3 @@ if __name__=='__main__':
 
 	fname='../OOC/pepb_PI_fraco'
 	forte.ProbGeneration(fname)
-
-
-
-	#a.GetDensityFromWOA13()
