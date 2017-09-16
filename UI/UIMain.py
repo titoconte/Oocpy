@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication
+from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication,qApp
 
 class Main(QMainWindow):
 
@@ -8,148 +8,85 @@ class Main(QMainWindow):
 
         self.initUI()
 
- def initUI(self):
+    def initUI(self):
 
-    menubar = self.menuBar()
-    fileMenu = menubar.addMenu('File')
+        self.MenUI()
+        self.setGeometry(200, 200, 600, 400)
+        self.setWindowTitle('OOC Drill Model')
+        self.show()
 
-    impMenu = QMenu('Import', self)
-    impAct = QAction('Import mail', self)
-    impMenu.addAction(impAct)
+    def MenUI(self):
 
-    newAct = QAction('New', self)
+        menubar = self.menuBar()
+        # Options roots
+        fileMenu = menubar.addMenu('&File')
+        InMenu = menubar.addMenu('&Inputs')
+        OutMenu = menubar.addMenu('&Outputs')
 
-    fileMenu.addAction(newAct)
-    fileMenu.addMenu(impMenu)
+        # file Menu
+        newAct = QAction('&New', self)
+        fileMenu.addAction(newAct)
+        openAct = QAction('&Open', self)
+        fileMenu.addAction(openAct)
+        fileMenu.addSeparator()
+        GDbAct = QAction('&Grain Data Base', self)
+        fileMenu.addAction(GDbAct)
+        fileMenu.addSeparator()
+        quitAct = QAction('&Quit', self)
+        quitAct.triggered.connect(qApp.quit)
+        fileMenu.addAction(quitAct)
 
-    self.setGeometry(300, 300, 300, 200)
-    self.setWindowTitle('OOC Drill Model')    
-    self.show()
+
+        # Input Menu
+        woa13Act = QAction('Gets &WOA13 Profile', self)
+        InMenu.addAction(woa13Act)
+        HycomAct = QAction('Gets &Hycom Currents', self)
+        InMenu.addAction(HycomAct)
+        GebcoAct = QAction('Gets GebCo &Bathymetry', self)
+        InMenu.addAction(GebcoAct)
+        InMenu.addSeparator()
+
+        ShpPointAct = QAction('&Export Shape Point', self)
+        InMenu.addAction(ShpPointAct)
+        CurrMenu = QMenu('&Currents Plot', self)
+        profileAct = QAction('&All Profile', self)
+        CurrMenu.addAction(profileAct)
+        StickAct = QAction('&Stickplot', self)
+        CurrMenu.addAction(StickAct)
+        InMenu.addMenu(CurrMenu)
+        InMenu.addSeparator()
+
+        GrainAct = QAction('&Grain Size', self)
+        InMenu.addAction(GrainAct)
+        InMenu.addSeparator()
+        runAct = QAction('&Run Scenario', self)
+        InMenu.addAction(runAct)
+
+        # Output Menu
+        StocAct = QAction('Stochastic &Calculation', self)
+        OutMenu.addAction(StocAct)
+        SumAct = QAction('Sum &Scenarios', self)
+        OutMenu.addAction(SumAct)
+        OutMenu.addSeparator()
+        DOAct = QAction('Read &Deposition Output', self)
+        OutMenu.addAction(DOAct)
+        WCAct = QAction('Read &Water Column Output', self)
+        OutMenu.addAction(WCAct)
+        OutMenu.addSeparator()
+
+        ExpShpAct = QAction('&Export Shape', self)
+        OutMenu.addAction(ExpShpAct)
+        FplotAct = QAction('Export Fast &Plot', self)
+        OutMenu.addAction(FplotAct)
+        CalcAct = QAction('Calcualte Statistics', self)
+        OutMenu.addAction(CalcAct)
 
 
-if __name__ == '__main__':
-
-    app = QApplication(sys.argv)
-    ex = Example()
-    sys.exit(app.exec_())
-
-
-    def __init__(self, *args, **kwargs):
-        super(Main, self).__init__(*args, **kwargs)
-
-        self.cw = 75
-
-        self.DetInput = DetInput(self)
-        self.DetInput.Hide()
-
-        self.sizer = wx.BoxSizer(wx.VERTICAL)
-        self.sizer.Add(self.DetInput, 1, wx.EXPAND)
-        self.SetSizer(self.sizer)
-
-        self.InitUI()
-
-    def InitUI(self):
-
-        self.MenuUI()
-        #self.MyPanel()
-        # set window size
-        self.SetSize((600, 400))
-        # set window title
-        self.SetTitle()
-        # centerd window in the screen
-        self.Centre()
-        # shows frame
-        self.Show(True)
-
-    def MenuUI(self):
-        # creates menubar
-        menubar = wx.MenuBar()
-        # FILE BAR
-        # Creates file menu to inserts in menubar
-        fileMenu = wx.Menu()
-        # inserts options in menubar
-
-        NewDet = fileMenu.Append(wx.ID_NEW, 'New &Determinitic','text')
-        self.Bind(wx.EVT_MENU, self.CreateDet, NewDet)
-
-        NewStoc = fileMenu.Append(wx.ID_NEW, 'New &Stochastic')
-        self.Bind(wx.EVT_MENU, self.CreateStoc, NewStoc)
-
-        OpenScenario = fileMenu.Append(wx.ID_OPEN, '&Open')
-        self.Bind(wx.EVT_MENU, self.OpenScenario, OpenScenario)
-
-        fileMenu.AppendSeparator()
-        SaveScenario = fileMenu.Append(wx.ID_SAVE, '&Save')
-        #self.Bind(wx.EVT_MENU, self.Save, SaveScenario)
-        # QUIT OPTION
-        quit = fileMenu.Append(wx.ID_EXIT, '&Quit\tCtrl+W')
-        self.Bind(wx.EVT_MENU, self.OnQuit, quit)
-        # inputsMenu
-        UtilsMenu = wx.Menu()
-        ExportLocation = UtilsMenu.Append(wx.ID_ANY, '&Export Location Point')
-        #self.Bind(wx.EVT_MENU, self.Save, SaveScenario)
-        WOA13 = UtilsMenu.Append(wx.ID_ANY, '&Density Profile from WOA13')
-        #self.Bind(wx.EVT_MENU, self.Save, SaveScenario)
-        CurrentConvert = UtilsMenu.Append(wx.ID_ANY, '&Current Profile')
-        #self.Bind(wx.EVT_MENU, self.Save, SaveScenario)
-        UtilsMenu.Append(wx.ID_ANY, '&Grain Size DataBase')
-        #self.Bind(wx.EVT_MENU, self.Save, SaveScenario)
-
-        # output menu
-        outputMenu = wx.Menu()
-        outputMenu.Append(wx.ID_ANY, '&Calculates Probability')
-        outputMenu.AppendSeparator()
-        Pln = outputMenu.Append(wx.ID_ANY, 'Open &Deposit File')
-        self.Bind(wx.EVT_MENU, self.Pln, Pln)
-        Dyn = outputMenu.Append(wx.ID_ANY, 'Open &Plume File')
-        self.Bind(wx.EVT_MENU, self.Dyn, Dyn)
-        outputMenu.Append(wx.ID_ANY, '&Export Results')
-        outputMenu.Append(wx.ID_ANY, 'Gets &Statistics')
-
-        # MENU BAR
-        # inserts file option in menubar
-        menubar.Append(fileMenu, '&File')
-        menubar.Append(UtilsMenu, '&Input Options')
-        menubar.Append(outputMenu, '&Output Options')
-        # inserts menu bar in the frame
-        self.SetMenuBar(menubar)
-
-    # function of quit option
-    def OnQuit(self, e):
-        self.Close()
-
-    def HideAll(self):
-        self.DetInput.Hide()
-
-    def Dyn(self,e):
-        self.HideAll()
-        self.DetInput.Show()
-        self.Layout()
-
-    def Pln(self,e):
-        self.HideAll()
-        self.DetInput.Show()
-        self.Layout()
-
-    def CreateDet(self,e):
-        self.HideAll()
-        self.DetInput.Show()
-        self.Layout()
-
-    def CreateStoc(self,e):
-        self.HideAll()
-        self.DetInput.Show()
-        self.Layout()
-
-    def OpenScenario(self,e):
-        self.HideAll()
-        self.DetInput.Show()
-        self.Layout()
 
 def main():
 
     app = QApplication(sys.argv)
-    Main(None)
+    ex = Main()
     sys.exit(app.exec_())
 
 
