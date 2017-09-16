@@ -1,8 +1,38 @@
-# import wx
-# from DetInput import DetInput
+import sys
+from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication
+
+class Main(QMainWindow):
+
+    def __init__(self):
+        super().__init__()
+
+        self.initUI()
+
+ def initUI(self):
+
+    menubar = self.menuBar()
+    fileMenu = menubar.addMenu('File')
+
+    impMenu = QMenu('Import', self)
+    impAct = QAction('Import mail', self)
+    impMenu.addAction(impAct)
+
+    newAct = QAction('New', self)
+
+    fileMenu.addAction(newAct)
+    fileMenu.addMenu(impMenu)
+
+    self.setGeometry(300, 300, 300, 200)
+    self.setWindowTitle('OOC Drill Model')    
+    self.show()
 
 
-class Main(wx.Frame):
+if __name__ == '__main__':
+
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
+
 
     def __init__(self, *args, **kwargs):
         super(Main, self).__init__(*args, **kwargs)
@@ -25,7 +55,7 @@ class Main(wx.Frame):
         # set window size
         self.SetSize((600, 400))
         # set window title
-        self.SetTitle('OOC Drill Model')
+        self.SetTitle()
         # centerd window in the screen
         self.Centre()
         # shows frame
@@ -118,6 +148,10 @@ class Main(wx.Frame):
 
 def main():
 
-    ex = wx.App()
+    app = QApplication(sys.argv)
     Main(None)
-    ex.MainLoop()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
