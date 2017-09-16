@@ -240,7 +240,9 @@ def ReadPLN(fname,px=338427,py=9097511,epsg=32725,esp=2700,
 			# labels
 			plt.xlabel('X Coordenadas em UTM (Datum - WGS84)')
 			plt.ylabel('Y Coordenadas em UTM (Datum - WGS84)')
-		cb.ax.set_title(ur'mm')
+
+		cb.ax.set_title(u'mm')
+
 		ax.set_aspect('equal')
 
 		if extent is not None:

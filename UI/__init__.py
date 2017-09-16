@@ -1,1 +1,1 @@
-from UI import *
+import UIMain

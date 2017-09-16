@@ -1,5 +1,5 @@
-import wx
-from DetInput import DetInput
+# import wx
+# from DetInput import DetInput
 
 
 class Main(wx.Frame):
@@ -121,7 +121,3 @@ def main():
     ex = wx.App()
     Main(None)
     ex.MainLoop()
-
-
-if __name__ == '__main__':
-    main()
