@@ -125,6 +125,7 @@ class OocInputs:
 			f.write('\nEND\n')
 	
 	def ProbGeneration(self,fname,step=1,windows=False):
+		
 		self = self.GetCurrent()
 		N=len(self.CurrProfile)
 		Nlayers=self.CurrLayers+1
