@@ -1,10 +1,9 @@
 
-import numpy as np
-import geopandas as gpd
-import pandas as pd 
-import xarray as xr
+from  geopandas import GeoDataFrame
+from numpy import repeat
+from xarray import open_mfdataset
 from shapely.geometry import Point
-
+from os import mkdir
 
 class OocInputs:
 	'''
@@ -20,7 +19,10 @@ class OocInputs:
 	'''
 	def __init__(self,x,y,Depth=1000,StudyName=None,epsg='4326'):
 		self.StudyName=StudyName
-		self._gdf=gpd.GeoDataFrame([Depth],geometry=[Point([x,y])],columns=['depth'],crs={'init':'epsg:{}'.format(epsg)})
+		self._gdf=GeoDataFrame([Depth],geometry=[Point([x,y])],columns=['depth'],crs={'init':'epsg:{}'.format(epsg)})
+		if self.StudyName!=None:
+				self._gdf['Nome']=self.StudyName
+
 		self._gdf = self._gdf.to_crs({'init':'epsg:4326'})
 		# grid definition
 		self.nx=110
@@ -40,7 +42,7 @@ class OocInputs:
 		self.SimulationTime=1000000
 		self.TimeStepSeconds=3600
 		self.comments=['MUD']
-		self._breaklines=''.join(np.repeat('1234567890',1))
+		self._breaklines=''.join(repeat('1234567890',1))
 		self.discharge={
 			'rate':39.76,
 			'ratio':0.35,
@@ -56,26 +58,15 @@ class OocInputs:
 		self.lon, self.lat =self._gdf.geometry.bounds.iloc[:,2:].values[0]
 		self.CurrFileName=None
 		self.MyProfs=[0,50,150,250,500,700]
-		self.density={}		
+		self.density={}
 		self.CurrProfile=[]
 		self.CurrLayers=6
 
-	def GetCurrent(self):
-		#try:
-		f = open(self.CurrFileName,'r')
-		self.CurrProfile = f.readlines()
-		f.close()
-		#except:
-			#print('Define CurrFileName')
-			#pass
-
-		return self
-	
 	def WriteIni(self,filename):
-	
+
 		with open(filename,'w') as f:
 			f.write(self.comments[0])
-			
+
 			f.write('\n'+self._breaklines)
 			if self.NOSQUEEZE:
 				f.write('\nNOSQUEEZE\n')
@@ -98,7 +89,7 @@ class OocInputs:
 			f.write('{bulk:.2f}\n'.format(**self.discharge))
 			for key,val in sorted(self.discharge['composition'].items()):
 				f.write('"{}" {:.1f} {:.5f} {:.5f}\n'.format(key,*val))
-			
+
 			f.write('\nAMBIENT\n')
 			f.write('3 {} {}\n'.format(self.nt,self.TimeStepSeconds))
 			f.write(''.join(self.CurrProfile))
@@ -121,11 +112,36 @@ class OocInputs:
 			f.write('3 {0:.1f} -1\n'.format(self.SimulationTime))
 			f.write('\nTIMESTEP\n')
 			f.write('{}\n'.format(self.TimeStepSeconds))
-			
+
 			f.write('\nEND\n')
-	
+
+	def GetCurrent(self):
+		#try:
+		f = open(self.CurrFileName,'r')
+		self.CurrProfile = f.readlines()
+		f.close()
+		#except:
+			#print('Define CurrFileName')
+			#pass
+
+		return self
+
 	def ProbGeneration(self,fname,step=1,windows=False):
+<<<<<<< HEAD
 		
+=======
+		fname=fname.replace('\\','/')
+
+		if ('/' in fname):
+			dname=''
+			for i in fname.split('/')[:-1]:
+				dname=dname+i+'/'
+				try:
+					mkdir(dname)
+				except:
+					pass
+
+>>>>>>> b24b745cfe86cf91b0330f88e7e14400a4c8d752
 		self = self.GetCurrent()
 		N=len(self.CurrProfile)
 		Nlayers=self.CurrLayers+1
@@ -135,11 +151,11 @@ class OocInputs:
 		if windows:
 			ftype='bat'
 			oocfname='oc120299'
-			copycommand='copy'
+			copycommand='move'
 		else:
 			ftype='sh'
 			oocfname='wine oc120299.exe'
-			copycommand='cp'
+			copycommand='mv'
 
 		f = open(fname+'_run.'+ftype,'w')
 
@@ -147,50 +163,55 @@ class OocInputs:
 			self = self.GetCurrent()
 			self.CurrProfile=self.CurrProfile[i:(self.nt*Nlayers+i)]
 			self.WriteIni('{}_{:04d}.in'.format(fname,k))
-			
+
 			f.write('{} {}_{:04d}.in {:04d}.out >> {:04d}.txt\n'.format(oocfname,fname.split('/')[-1],k,k,k))
 			f.write(copycommand+' DYNPLUME {}_{:04d}.DYN\n'.format(fname.split('/')[-1],k))
 			f.write(copycommand+' PLANVW {}_{:04d}.PLN\n'.format(fname.split('/')[-1],k))
-			
+			f.write(copycommand+' OOCERROR {}_{:04d}.err\n'.format(fname.split('/')[-1],k))
+
 			k+=1
 			i+=Nlayers*step
 		f.close()
 
+	def CreateShpFilePoint(x,y,pname,epsg,fname='PontoDeModelagem.shp'):
+		'''
+		Creates ShapeFile from a single point
 
+		'''
+		GeoDataFrame(pname,
+					geometry=[Point(x,y)],
+					columns='Nome',
+					crs={'init':'epsg:'+str(epsg)}).to_file(fname)
 
-def GetDensityFromWOA13(depth,lon,lat,self,periods={'intense':1.5,'weak':4.5}):
+	def GetDensityFromWOA13(self,periods={'intense':1.5,'weak':4.5}):
 
 		density={}
-		
 		OPENDAPprefix='https://data.nodc.noaa.gov/thredds/dodsC/woa/WOA13/DATAv2/temperature/netcdf/decav/0.25/woa13_decav_'
-		
 		OPENDAPsufix='_04v2.nc'
-		
+
 		# gets files opendap access
-		FullURLtemp = lambda x:OPENDAPprefix+'t{:02d}'.format(x)+OPENDAPsufix 
-		
-		FullURLsal = lambda x:OPENDAPprefix+'s{:02d}'.format(x)+OPENDAPsufix 
-		
+		FullURLtemp = lambda x:OPENDAPprefix+'t{:02d}'.format(x)+OPENDAPsufix
+		FullURLsal = lambda x:OPENDAPprefix+'s{:02d}'.format(x)+OPENDAPsufix
+
 		# gets files opendap access
-				
 		if depth.values[0]>1500:
 			print('WOA13 profile will generate with climatology data')
 			DataRange=list(range(13,17))
 		else:
 			print('WOA13 profile will generate with monthly data')
 			DataRange=list(range(1,13))
-		
+
 		# creates a dataset list
 		ListWOA13Data = list(map(FullURLtemp,DataRange))+list(map(FullURLsal,DataRange))
 		print(ListWOA13Data)
 		# Converts to dataset
-		ds = xr.open_mfdataset(ListWOA13Data,decode_times=False)
-		
+		ds = open_mfdataset(ListWOA13Data,decode_times=False)
+
 		# Gets closer point and converts to DataFrame and remove invalid data
 		df = ds[['s_an','t_an']].sel(lon=lon,lat=lat,method='nearest').to_dataframe().dropna()
-		
+
 		ds.close()
-	
+
 		# calculates pressure
 		df['pressure'] = gsw.p_from_z(df.index.get_level_values('depth'),ds['lat'].values)
 		# calculates absolut salinity
@@ -202,15 +223,15 @@ def GetDensityFromWOA13(depth,lon,lat,self,periods={'intense':1.5,'weak':4.5}):
 		for key,val in periods.iteritems():
 			# exports data
 			df.xs(val,level='time',axis=0,drop_level=False)['density'].to_csv('DensityProfiles_{}.csv'.format(key),sep=';')
-			
+
 			density[key]=df.xs(val,level='time',axis=0,drop_level=False)['density']
-	
-		return density
+
+		return self
 
 
 
 if __name__=='__main__':
-	
+
 	x=338427
 	y=9097511
 	epsg=32725
@@ -237,14 +258,14 @@ if __name__=='__main__':
 		"sol7":[2.6, 0.00029, 0.04567]
 	}
 
-	
+
 	forte.density={
 		'0':1.0236,
 		'0328.08':1.0256,
 		'1640.42':1.0294,
 		'2296.59':1.0308
 	}
-	
+
 	fname='../OOC/pepb_PI_fraco'
 	forte.ProbGeneration(fname)
 
