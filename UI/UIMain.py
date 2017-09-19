@@ -1,5 +1,12 @@
 import sys
-from PyQt5.QtWidgets import QMainWindow, QAction, QMenu, QApplication,qApp
+from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,qApp,
+                             QStackedWidget)
+
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import *
+from InputFrame import *
 
 class Main(QMainWindow):
 
@@ -9,9 +16,20 @@ class Main(QMainWindow):
         self.initUI()
 
     def initUI(self):
-
         self.MenUI()
-        self.setGeometry(200, 200, 600, 400)
+        self.centralWidget = QStackedWidget()
+        self.setCentralWidget(self.centralWidget)
+        inputs = InputWidget(self)
+
+        scrollArea=QScrollArea(self)
+        scrollArea.setWidgetResizable(True)
+        scrollArea.setWidget(inputs)
+
+        # self.centralWidget.addWidget(inputs)
+        # self.centralWidget.setCurrentWidget(inputs)
+        self.centralWidget.addWidget(scrollArea)
+        self.centralWidget.setCurrentWidget(scrollArea)
+        self.setGeometry(200, 200, 400, 500)
         self.setWindowTitle('OOC Drill Model')
         self.show()
 
@@ -80,6 +98,7 @@ class Main(QMainWindow):
         OutMenu.addAction(FplotAct)
         CalcAct = QAction('Calcualte Statistics', self)
         OutMenu.addAction(CalcAct)
+
 
 
 
