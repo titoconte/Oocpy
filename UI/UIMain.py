@@ -6,32 +6,52 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
-from InputFrame import *
+from InputFrame import InputWidget
+from OpenWindow import OpenFileUI
+
+# class OpenFileUI(QMainWindow):
+#     def __init__(self, parent=None):
+#         super(OpenFileUI, self).__init__(parent)
+#
+#         self.openFileNameDialog()
+#
+#         self.show()
+#
+#     def openFileNameDialog(self):
+#         options = QFileDialog.Options()
+#         options |= QFileDialog.DontUseNativeDialog
+#         self.FileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","Input files (*.xml)", options=options)
 
 class Main(QMainWindow):
 
     def __init__(self):
         super().__init__()
 
-        self.initUI()
-
-    def initUI(self):
         self.MenUI()
+        self._FileName=None
+        self.NewUI()
+        self.setGeometry(200, 200, 400, 500)
+        self.setWindowTitle('OOC Drill Model')
+        self.show()
+
+    def OpenUI(self):
+
+        FileInput = OpenFileUI(self)
+        self._FileName=FileInput.FileName
+        self.NewUI()
+
+    def NewUI(self):
         self.centralWidget = QStackedWidget()
         self.setCentralWidget(self.centralWidget)
-        inputs = InputWidget(self)
+        inputs = InputWidget(self,self._FileName)
 
         scrollArea=QScrollArea(self)
         scrollArea.setWidgetResizable(True)
         scrollArea.setWidget(inputs)
 
-        # self.centralWidget.addWidget(inputs)
-        # self.centralWidget.setCurrentWidget(inputs)
         self.centralWidget.addWidget(scrollArea)
         self.centralWidget.setCurrentWidget(scrollArea)
-        self.setGeometry(200, 200, 400, 500)
-        self.setWindowTitle('OOC Drill Model')
-        self.show()
+        self._FileName=None
 
     def MenUI(self):
 
@@ -42,10 +62,17 @@ class Main(QMainWindow):
         OutMenu = menubar.addMenu('&Outputs')
 
         # file Menu
-        newAct = QAction('&New', self)
+        newAct = QAction('&New/Restore Default', self)
+        newAct.triggered.connect(self.NewUI)
         fileMenu.addAction(newAct)
         openAct = QAction('&Open', self)
+        openAct.triggered.connect(self.OpenUI)
         fileMenu.addAction(openAct)
+        fileMenu.addSeparator()
+        StocSaveAct = QAction('Save &Stochastic', self)
+        fileMenu.addAction(StocSaveAct)
+        DetSaveAct = QAction('Save &Deterministic', self)
+        fileMenu.addAction(DetSaveAct)
         fileMenu.addSeparator()
         GDbAct = QAction('&Grain Data Base', self)
         fileMenu.addAction(GDbAct)
@@ -98,8 +125,6 @@ class Main(QMainWindow):
         OutMenu.addAction(FplotAct)
         CalcAct = QAction('Calcualte Statistics', self)
         OutMenu.addAction(CalcAct)
-
-
 
 
 def main():
