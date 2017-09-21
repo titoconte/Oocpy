@@ -1,7 +1,7 @@
 import sys
 from collections import OrderedDict
 from PyQt5.QtWidgets import (QWidget, QLabel, QLineEdit,
-    QTextEdit, QGridLayout, QApplication)
+    QTextEdit, QGridLayout, QApplication, QPushButton)
 from PyQt5.QtCore import Qt
 
 from PyQt5.QtCore import *
@@ -102,5 +102,11 @@ class InputWidget(QWidget):
                 group=label.split(' ')[0]
             grid.addWidget(qlabel, pos, 0)
 
+        StocButton = QPushButton('Save Stochastic Scenario', self)
+        StocButton.setToolTip('This is an example button')
+        grid.addWidget(StocButton, pos+2, 0)
+        DetButton = QPushButton('Save Deterministic Scenario', self)
+        DetButton.setToolTip('This is an example button')
+        grid.addWidget(DetButton, pos+2, 3)
 
         self.setLayout(grid)
