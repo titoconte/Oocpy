@@ -1,4 +1,9 @@
 import sys
+
+from xml.dom.minidom import parseString
+from dicttoxml import dicttoxml
+from collections import OrderedDict
+
 from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,qApp,
                              QStackedWidget)
 
@@ -8,6 +13,7 @@ from PyQt5 import QtGui
 from PyQt5.QtWidgets import *
 from InputFrame import InputWidget
 from OpenWindow import OpenFileUI
+from SaveWindow import SaveFileUI
 
 # class OpenFileUI(QMainWindow):
 #     def __init__(self, parent=None):
@@ -40,10 +46,48 @@ class Main(QMainWindow):
         self._FileName=FileInput.FileName
         self.NewUI()
 
+    def SaveInputUI(self):
+
+        outputname = SaveFileUI(self)
+        self._FileOutput = outputname.FileName
+
+        xml = dicttoxml(self.inputs,
+                        custom_root='test',
+                        attr_type=False)
+        
+        dom = parseString(xml)
+        f = open(self._FileOutput,'w')
+        f.write(dom.toprettyxml())
+        f.close()
+
     def NewUI(self):
         self.centralWidget = QStackedWidget()
         self.setCentralWidget(self.centralWidget)
+
         inputs = InputWidget(self,self._FileName)
+
+        elements=[
+            'Discharge',
+            'Grid',
+            'Ambient',
+            'Information'
+        ]
+
+        # add atributes in main class
+        self.inputs=dict.fromkeys(elements)
+        for key in elements:
+            self.inputs[key]=dict()
+
+        for attr in inputs.__dir__():
+            if any([element in attr for element in elements]):
+                value = getattr(inputs,attr)
+                label=[attr.replace(ele,'') for ele in elements if ele in attr]
+                label=label[0]
+
+                self.inputs[attr.replace(label,'')].update({
+                    label:value.text()
+                    })
+
 
         scrollArea=QScrollArea(self)
         scrollArea.setWidgetResizable(True)
@@ -70,6 +114,7 @@ class Main(QMainWindow):
         fileMenu.addAction(openAct)
         fileMenu.addSeparator()
         StocSaveAct = QAction('Save &Stochastic', self)
+        StocSaveAct.triggered.connect(self.SaveInputUI)
         fileMenu.addAction(StocSaveAct)
         DetSaveAct = QAction('Save &Deterministic', self)
         fileMenu.addAction(DetSaveAct)
@@ -80,7 +125,6 @@ class Main(QMainWindow):
         quitAct = QAction('&Quit', self)
         quitAct.triggered.connect(qApp.quit)
         fileMenu.addAction(quitAct)
-
 
         # Input Menu
         woa13Act = QAction('Gets &WOA13 Profile', self)

@@ -1,0 +1,33 @@
+<?xml version="1.0" ?>
+<test>
+	<Ambient>
+		<Density/>
+		<Hs>0</Hs>
+		<Current/>
+		<Tp>1</Tp>
+	</Ambient>
+	<Information>
+		<Scenario>Default</Scenario>
+	</Information>
+	<Grid>
+		<Depth>0.5</Depth>
+		<EPSG>32724</EPSG>
+		<Ny>110</Ny>
+		<Nx>110</Nx>
+		<Time>1</Time>
+		<Duration>75</Duration>
+		<Resolution>12.192</Resolution>
+	</Grid>
+	<Discharge>
+		<Angle>90</Angle>
+		<Latitude>50000</Latitude>
+		<Grain/>
+		<Bulk>20</Bulk>
+		<Time>60</Time>
+		<Y>55</Y>
+		<Rate>16</Rate>
+		<Longitude>70000</Longitude>
+		<Ratio>0.5</Ratio>
+		<X>55</X>
+	</Discharge>
+</test>
