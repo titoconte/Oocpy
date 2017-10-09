@@ -19,10 +19,10 @@ class InputWidget(QWidget):
         self.setMaximumSize(300,700)
 
     @staticmethod
-    def ReadXML(Labels,FileName):
-
-
-        return Labels
+    # def ReadXML(Labels,FileName):
+    #
+    #
+    #     return Labels
 
     def InputUI(self,FileName):
         grid = QGridLayout()

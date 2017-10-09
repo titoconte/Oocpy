@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QMainWindow, QAction, QMenu, QApplication,qApp,
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5 import QtGui
+from PyQt5 import QtGui 
 from PyQt5.QtWidgets import *
 from InputFrame import InputWidget
 from OpenWindow import OpenFileUI
@@ -54,7 +54,7 @@ class Main(QMainWindow):
         xml = dicttoxml(self.inputs,
                         custom_root='test',
                         attr_type=False)
-        
+
         dom = parseString(xml)
         f = open(self._FileOutput,'w')
         f.write(dom.toprettyxml())

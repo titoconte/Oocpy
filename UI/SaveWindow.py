@@ -9,7 +9,6 @@ class SaveFileUI(QMainWindow):
         super(SaveFileUI, self).__init__(parent)
 
         self.saveFileDialog()
-
         self.show()
 
     def saveFileDialog(self):

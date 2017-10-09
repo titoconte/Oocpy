@@ -12,6 +12,7 @@ class OpenFileUI(QMainWindow):
 
         self.show()
 
+
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
