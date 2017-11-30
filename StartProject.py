@@ -2,8 +2,9 @@
 import sys
 import os
 
-def main(root):
+def StartProject():
 
+    root = raw_input('Entre com o diretorio onde o projeto sera iniciado: ')
     MainDir = os.path.join(root,'Operacao','Tratamento_e_Analise')
     Produtos = os.path.join(root,'Produtos')
     os.makedirs(MainDir,'Figuras','MetOcean','Correntes')
@@ -23,5 +24,5 @@ def main(root):
     os.makedirs(Produtos,'Shapes')
 
 if __name__ == '__main__':
-    root = raw_input('Entre com o diretorio onde o projeto sera iniciado: ')
-    main(root)
+
+    StartProject()
