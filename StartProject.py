@@ -23,4 +23,5 @@ def main(root):
     os.makedirs(Produtos,'Shapes')
 
 if __name__ == '__main__':
-    main()
+    root = raw_input('Entre com o diretorio onde o projeto sera iniciado: ')
+    main(root)
