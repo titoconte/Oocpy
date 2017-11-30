@@ -12,8 +12,8 @@ class OpenFileUI(QMainWindow):
 
         self.show()
 
+
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         self.FileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","Input files (*.xml)", options=options)
-        print(self.FileName)

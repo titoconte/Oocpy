@@ -19,10 +19,17 @@ class InputWidget(QWidget):
         self.setMaximumSize(300,700)
 
     @staticmethod
-    def ReadXML(FileName):
+    # def ReadXML(Labels,FileName):
+    #
+    #
+    #     return Labels
 
+    def InputUI(self,FileName):
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        group='Information'
         Labels=OrderedDict([
-            ('Scenario Name',['teste',0]),
+            ('Scenario Name',['Default',0]),
             ('Grid Inputs',['',1]),
             ('Nx',[110,2]),
             ('Ny',[110,3]),
@@ -48,43 +55,8 @@ class InputWidget(QWidget):
             ('Density Profile File',['',23]),
             ('Hs',[0,24]),
             ('Tp',[1,25])])
-
-        return Labels
-
-    def InputUI(self,FileName):
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        group='Description'
-        if not FileName:
-            Labels=OrderedDict([
-                ('Scenario Name',['Default',0]),
-                ('Grid Inputs',['',1]),
-                ('Nx',[110,2]),
-                ('Ny',[110,3]),
-                ('EPSG Code',[32724,4]),
-                ('Depth (m)',[700,6]),
-                ('Resolution in (m)',[12.192,5]),
-                ('Time Step (hours)',[1,7]),
-                ('Duration (hours)',[75,8]),
-                ('Discharge Inputs',['',9]),
-                ('X (Grid cell value)', [55,10]),
-                ('Y (Grid cell value)',[55,11]),
-                ('Longitude',[70000,12]),
-                ('Latitude',[50000,13]),
-                ('Rate (kg/m³)',[16,14]),
-                ('Ratio (m)',[0.5,15]),
-                ('Depth (m)',[0.5,16]),
-                ('Angle (degrees)',[90,17]),
-                ('Time (hours)',[60,18]),
-                ('Bulk kg/m³',[20,19]),
-                ('Grain file',['',20]),
-                ('Ambient Inputs',['',21]),
-                ('Current File',['',22]),
-                ('Density Profile File',['',23]),
-                ('Hs',[0,24]),
-                ('Tp',[1,25])])
-        else:
-            Labels = self.ReadXML([FileName])
+        if isinstance(FileName,str):
+            Labels = self.ReadXML(Labels,FileName)
 
         title=QFont()
         title.setBold(True)
