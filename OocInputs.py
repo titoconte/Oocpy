@@ -60,7 +60,6 @@ class OocInputs:
 		self.MyProfs=[0,50,150,250,500,700]
 		self.density={}
 		self.CurrProfile=[]
-		self.CurrLayers=6
 
 	def WriteIni(self,filename):
 
@@ -119,6 +118,7 @@ class OocInputs:
 		#try:
 		f = open(self.CurrFileName,'r')
 		self.CurrProfile = f.readlines()
+		self.CurrLayers=abs(int(self.CurrProfile[0]))
 		f.close()
 		#except:
 			#print('Define CurrFileName')
